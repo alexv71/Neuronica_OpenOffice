@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="DannysLib" script:language="StarBasic">REM  *****  BASIC  *****
+
+&apos;-----
+&apos; This group of variables is set by the GetFrontCalcDocoument() function (below).
+&apos;
+&apos; The spreadsheet document the user is working in, when the dialog is called.
+Global oCalcDoc As Object
+&apos; The sheet the user is working in, when the dialog is called.
+Global oSheet As Object
+&apos; The selected cells in the spreadsheet, when the dialog is called.
+Global cSelectedCells As String
+&apos;-----
+
+&apos; If the frontmost window is a spreadsheet document, then return it.
+&apos; Otherwise display an error, and return nothing.
+Function GetFrontCalcDocoument()
+	GetFrontCalcDocoument = False
+	
+	oCalcDoc = StarDesktop.getCurrentComponent()
+	
+	&apos; If it does not even support XServiceInfo, then it is NOT an office document.
+	If HasUnoInterfaces( oCalcDoc, &quot;com.sun.star.lang.XServiceInfo&quot; ) Then
+		&apos; Is it a Calc document?
+		If oCalcDoc.supportsService( &quot;com.sun.star.sheet.SpreadsheetDocument&quot; ) Then
+			
+			&apos; Get one of the document&apos;s controllers -- the current controller.
+			&apos; i.e. if the document has one or more windows open (multiple windows could be
+			&apos;  open by picking Window --&gt; New Window), then return the current window
+			&apos;  controller for the document model.
+			oDocCtrl = oCalcDoc.getCurrentController()
+			
+			&apos; Get the active sheet.
+			oSheet = oDocCtrl.getActiveSheet()
+			&apos; was there an active sheet?
+			If HasUnoInterfaces( oSheet, &quot;com.sun.star.lang.XServiceInfo&quot; ) Then
+				If oSheet.supportsService( &quot;com.sun.star.sheet.Spreadsheet&quot; ) Then
+					GetFrontCalcDocoument = True
+					
+					&apos; Now get the current selection from the controller.
+					&apos; Ask the document controller for the selection.
+					oSelection = oDocCtrl.getSelection()
+					cSelectedCells = CalcCellRangesToName( oCalcDoc, oSheet, oSelection )
+				EndIf
+			EndIf
+		EndIf
+	EndIf
+End Function
+
+&apos; The oSelectedCells must be either....
+&apos;  * empty
+&apos;  * com.sun.star.sheet.SheetCellRange
+&apos;  * com.sun.star.sheet.SheetCellRanges
+&apos; A string is returned which describes the selected cells.
+&apos; This is useful to get a text description of the selected cells in a spreadsheet.
+Function CalcCellRangesToName( oCalcDoc As com.sun.star.sheet.SpreadsheetDocument,_
+								oSheet As com.sun.star.sheet.Spreadsheet,_
+								oSelectedCells As Object,_
+								Optional bRemoveSheetNames As Boolean ) As String
+	cSelectedCells = &quot;&quot;
+	
+	&apos; Are any cells selected?
+	If HasUnoInterfaces( oSelectedCells, &quot;com.sun.star.lang.XServiceInfo&quot; ) Then
+		If oSelectedCells.supportsService( &quot;com.sun.star.sheet.SheetCellRange&quot; ) Then
+			oRangeAddress = oSelectedCells.getRangeAddress()
+			cSelectedCells = CellRangeAddressToName( oSheet, oRangeAddress )
+		ElseIf oSelectedCells.supportsService( &quot;com.sun.star.sheet.SheetCellRanges&quot; ) Then
+			aRangeAddresses = oSelectedCells.getRangeAddresses()
+			For i = 0 To UBound( aRangeAddresses )
+				oRangeAddress = aRangeAddresses( i )
+				If i &gt; 0 Then
+					cSelectedCells = cSelectedCells + &quot;;&quot;
+				EndIf
+				cSelectedCells = cSelectedCells + CellRangeAddressToName( oSheet, oRangeAddress )
+			Next
+		EndIf
+	EndIf
+	
+	CalcCellRangesToName = cSelectedCells
+End Function
+&apos; This is the complement of the above function.
+&apos; Pass in a string from the above function, and this returns a
+&apos;  com.sun.star.sheet.SheetCellRanges.
+&apos; This is useful to take a text description of cells, and get an object
+&apos;  that can be passed to the document controller&apos;s select() method to select the cells.
+Function CalcNameToCellRanges( oCalcDoc As com.sun.star.sheet.SpreadsheetDocument,_
+								oSheet As com.sun.star.sheet.Spreadsheet,_
+								cSelectedCells As String ) As Object
+	oSheetCellRanges = oCalcDoc.createInstance( &quot;com.sun.star.sheet.SheetCellRanges&quot; )
+	
+	If Len( cSelectedCells ) &gt; 0 Then
+		&apos; If cSelectedCells contains multiple ranges, separated by semicolons,
+		&apos;  then turn those into an array of strings describing each individual range.
+		aSelections = Split( cSelectedCells, &quot;;&quot; )
+		&apos; Iterate over the array.
+		For i = LBound( aSelections ) To UBound( aSelections )
+			cSelection = aSelections( i )
+			oCells = oSheet.getCellRangeByName( cSelection )
+			oSheetCellRanges.addRangeAddress( oCells.getRangeAddress(), True )
+		Next
+	EndIf
+	
+	CalcNameToCellRanges = oSheetCellRanges
+End Function
+
+
+
+Function CellRangeAddressToName( oSheet As com.sun.star.sheet.Spreadsheet,_
+								oRangeAddress As com.sun.star.table.CellRangeAddress ) As String
+	If oRangeAddress.StartColumn = oRangeAddress.EndColumn  _
+			And  oRangeAddress.StartRow = oRangeAddress.EndRow Then
+		CellRangeAddressToName = CalcColumnNumberToName( oSheet, oRangeAddress.StartColumn ) _
+						+ CSTR( oRangeAddress.StartRow + 1 )
+	Else
+		CellRangeAddressToName = CalcColumnNumberToName( oSheet, oRangeAddress.StartColumn ) _
+						+ CSTR( oRangeAddress.StartRow + 1 ) _
+						+ &quot;:&quot; _
+						+ CalcColumnNumberToName( oSheet, oRangeAddress.EndColumn ) _
+						+ CSTR( oRangeAddress.EndRow + 1 )
+	EndIf
+End Function
+
+
+Function CalcColumnNumberToName( oSheet As com.sun.star.sheet.Spreadsheet,_
+							nColumnNumber As Long ) As String
+	oColumns = oSheet.getColumns()
+	oColumn = oColumns.getByIndex( nColumnNumber )
+	cColumnName = oColumn.getName()
+	CalcColumnNumberToName() = cColumnName
+End Function
+
+
+
+
+
+&apos; Returns true if EVERY char of cChars is in the set cSet.
+&apos; The string cSet is considered to be a SET of characters.
+&apos; The function returns true if EVERY character of cChars is
+&apos;  in the SET cSet.
+Function AllCharsInSet( ByVal cChars As String, ByVal cSet As String ) As Boolean
+	AllCharsInSet() = False
+	For i = 1 To Len( cChars )
+		c = Mid( cChars, i, 1 )
+		If Instr( 1, cSet, c, 0 ) = 0 Then
+			Exit Function
+		EndIf
+	Next
+	AllCharsInSet() = True
+End Function
+
+&apos; Returns true if EVERY char of cChars are NOT in the set cSet.
+&apos; The string cSet is considered to be a SET of characters.
+&apos; The function returns true if EVERY character of cChars is
+&apos;  NOT in the SET cSet.
+Function AllCharsNotInSet( ByVal cChars As String, ByVal cSet As String ) As Boolean
+	AllCharsNotInSet() = False
+	For i = 1 To Len( cChars )
+		c = Mid( cChars, i, 1 )
+		If Instr( 1, cSet, c, 0 ) &gt; 0 Then
+			Exit Function
+		EndIf
+	Next
+	AllCharsNotInSet() = True
+End Function
+
+&apos; Returns true if ANY char of cChars is in the set cSet.
+Function AnyCharsInSet( ByVal cChars As String, ByVal cSet As String ) As Boolean
+	bNoneInSet = AllCharsNotInSet( cChars, cSet )
+	AnyCharsInSet() = Not bNoneInSet
+End Function
+
+&apos; Returns true if ANY char of cChars are NOT in the set cSet.
+Function AnyCharsNotInSet( ByVal cChars As String, ByVal cSet As String ) As Boolean
+	bAllInSet = AllCharsInSet( cChars, cSet )
+	AnyCharsNotInSet() = Not bAllInSet
+End Function
+
+
+
+
+
+&apos;############################################################
+&apos; Silly StarBasic doesn&apos;t even include the classic MIN() and MAX() functions.
+&apos; These functions are untyped so that you can pass values of any type, such
+&apos;  as an Integer, Long or Double.
+&apos;############################################################
+
+Function Min2( p1, p2 )
+	If p1 &lt; p2 Then
+		Min2() = p1
+	Else
+		Min2() = p2
+	EndIf
+End Function
+
+Function Max2( p1, p2 )
+	If p1 &gt; p2 Then
+		Max2() = p1
+	Else
+		Max2() = p2
+	EndIf
+End Function
+
+
+Function Min3( p1, p2, p3 )
+	Min3() = Min2( p1, Min2( p2, p3 ) )
+End Function
+
+Function Max3( p1, p2, p3 )
+	Max3() = Max2( p1, Max2( p2, p3 ) )
+End Function
+
+
+Function NumPropertyValues( aPropertyValuesArray )
+   On Error GoTo ErrorHandler
+      nNumProperties = UBound( aPropertyValuesArray ) + 1
+      NumPropertyValues() = nNumProperties
+      Exit Function
+   
+   ErrorHandler:
+      NumPropertyValues() = 0
+End Function
+
+
+&apos;-----
+&apos; Find a particular named property from an array of PropertyValue&apos;s.
+&apos; Parameters:
+&apos;  aPropertyValuesArray   -   an array of PropertyValue&apos;s, that is an array of
+&apos;                     com.sun.star.beans.PropertyValue.
+&apos;  cPropName         -   the name of a particular property you want.
+&apos;
+&apos; This finds the index in the array of PropertyValue&apos;s and returns it,
+&apos;  or returns -1 if it was not found.
+&apos;
+Function FindPropertyIndex( aPropertyValuesArray, cPropName As String ) As Long
+   nNumProperties = NumPropertyValues( aPropertyValuesArray )
+   For i = 0 To nNumProperties - 1
+      oProp = aPropertyValuesArray(i)
+      If oProp.Name = cPropName Then
+         FindPropertyIndex() = i
+         Exit Function
+      EndIf
+   Next
+   FindPropertyIndex() = -1
+End Function
+
+
+
+&apos;-----
+&apos; Find a particular named property from an array of PropertyValue&apos;s.
+&apos; Parameters:
+&apos;  aPropertyValuesArray   -   an array of PropertyValue&apos;s, that is an array of
+&apos;                     com.sun.star.beans.PropertyValue.
+&apos;  cPropName         -   the name of a particular property you want.
+&apos;
+&apos; This finds the PropertyValue and returns it, or returns Null if not found.
+&apos;
+Function FindProperty( aPropertyValuesArray, cPropName As String ) As com.sun.star.beans.PropertyValue
+   nPropIndex = FindPropertyIndex( aPropertyValuesArray, cPropName )
+   If nPropIndex &gt;= 0 Then
+      oProp = aPropertyValuesArray(nPropIndex) &apos; access array subscript
+      FindProperty() = oProp
+   EndIf
+End Function
+
+
+
+&apos;-----
+&apos; Get the value of a particular named property from an array of PropertyValue&apos;s.
+&apos; Parameters:
+&apos;  aPropertyValuesArray   -   an array of PropertyValue&apos;s, that is an array of
+&apos;                     com.sun.star.beans.PropertyValue.
+&apos;  cPropName         -   the name of a particular property you want.
+&apos;  uDefaultValue      -   This value is returned if the property is not found
+&apos;                      in the array.
+&apos;
+Function GetPropertyValue( aPropertyValuesArray, cPropName As String, Optional uDefaultValue )
+   nPropIndex = FindPropertyIndex( aPropertyValuesArray, cPropName )
+   If nPropIndex &gt;= 0 Then
+      oProp = aPropertyValuesArray(nPropIndex) &apos; access array subscript
+      uValue = oProp.Value &apos; get the value from the PropertyValue
+      GetPropertyValue() = uValue
+   Else
+      GetPropertyValue() = uDefaultValue
+   EndIf
+End Function
+
+
+
+
+&apos;-----
+&apos; Set the value of a particular named property from an array of PropertyValue&apos;s.
+&apos; Parameters:
+&apos;  aPropertyValuesArray   -   an array of PropertyValue&apos;s, that is an array of
+&apos;                     com.sun.star.beans.PropertyValue.
+&apos;  cPropName         -   the name of a particular property you want.
+&apos;  uValue            -   the value of the property to set.
+&apos;
+&apos; The function returns True if the property value was found.
+&apos;
+Sub SetPropertyValue( aPropertyValuesArray, cPropName As String, ByVal uValue )
+   nPropIndex = FindPropertyIndex( aPropertyValuesArray, cPropName )
+   &apos; Did we find it?
+   If nPropIndex &gt;= 0 Then
+      &apos; Found, the PropertyValue is already in the array.
+      &apos; Just modify its value.
+      oProp = aPropertyValuesArray(nPropIndex) &apos; access array subscript
+      oProp.Value = uValue &apos; set the property value.
+      aPropertyValuesArray(nPropIndex) = oProp &apos; put it back into array
+   Else
+      &apos; Not found, the array contains no PropertyValue with this name.
+      &apos; Append new element to array.
+      nNumProperties = NumPropertyValues( aPropertyValuesArray )
+      
+      If nNumProperties = 0 Then
+         aPropertyValuesArray = Array( MakePropertyValue( cPropName, uValue ) )
+      Else
+         &apos; Make array larger.
+         Redim Preserve aPropertyValuesArray(nNumProperties)
+         &apos; Assign new PropertyValue
+         aPropertyValuesArray(nNumProperties) = MakePropertyValue( cPropName, uValue )
+      EndIf
+   EndIf
+End Sub
+
+
+
+
+&apos;-----
+&apos; Set the value of a particular named property from an array of PropertyValue&apos;s.
+&apos; Parameters:
+&apos;  aPropertyValuesArray   -   an array of PropertyValue&apos;s, that is an array of
+&apos;                     com.sun.star.beans.PropertyValue.
+&apos;  cPropName         -   the name of a particular property you want.
+&apos;  uValue            -   the value of the property to set.
+&apos;
+Sub DeleteProperty( aPropertyValuesArray, cPropName As String )
+   nNumProperties = NumPropertyValues( aPropertyValuesArray )
+   
+   nPropIndex = FindPropertyIndex( aPropertyValuesArray, cPropName )
+   
+   &apos; Did we find it?
+   If nPropIndex &lt; 0 Then
+      &apos; Did not find it.
+      &apos; We&apos;re done.
+      
+   ElseIf nNumProperties = 1 Then
+      &apos; We found it.
+      &apos; It is the ONLY item in the array.
+      &apos; Just return a new empty array.
+      aPropertyValuesArray = Array()
+   
+   Else
+      &apos; We found it.
+      
+      &apos; If it is NOT the last item in the array,
+      &apos;  then shift other elements down into it&apos;s position.
+      If nPropIndex &lt; nNumProperties - 1 Then
+         &apos; Bump items down lower in the array.
+         For i = nPropIndex To nNumProperties - 2
+            aPropertyValuesArray(i) = aPropertyValuesArray(i+1)
+         Next
+      EndIf
+      
+      &apos; Redimension the array to have one feweer element.
+      Redim Preserve aPropertyValuesArray(nNumProperties-2)
+   EndIf
+End Sub
+
+
+
+&apos;-----
+&apos; Convenience function to return a string which explains what
+&apos;  PropertyValue&apos;s are in the array of PropertyValue&apos;s.
+&apos;
+Function PropValuesToStr( aPropertyValuesArray )
+   nNumProperties = NumPropertyValues( aPropertyValuesArray )
+   
+   cResult = CSTR( nNumProperties ) &amp; &quot; Properties.&quot;
+   
+   For i = 0 To nNumProperties-1
+      oProp = aPropertyValuesArray(i)
+      cResult = cResult &amp; Chr(13) &amp; &quot;  &quot; &amp; oProp.Name &amp; &quot; = &quot; &amp; CSTR( oProp.Value )
+   Next
+   
+   PropValuesToStr() = cResult
+End Function
+
+
+
+Function MakePropertyValue( Optional cName As String, Optional uValue ) As com.sun.star.beans.PropertyValue
+   Dim oPropertyValue As New com.sun.star.beans.PropertyValue
+   If Not IsMissing( cName ) Then
+      oPropertyValue.Name = cName
+   EndIf
+   If Not IsMissing( uValue ) Then
+      oPropertyValue.Value = uValue
+   EndIf
+   MakePropertyValue() = oPropertyValue
+End Function 
+
+
+</script:module>

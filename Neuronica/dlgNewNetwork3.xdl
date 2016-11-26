@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="dlgNewNetwork3" dlg:left="358" dlg:top="149" dlg:width="102" dlg:height="86" dlg:closeable="true" dlg:moveable="true" dlg:title="New network">
+ <dlg:bulletinboard>
+  <dlg:numericfield dlg:id="nfInput" dlg:tab-index="0" dlg:left="60" dlg:top="6" dlg:width="30" dlg:height="12" dlg:decimal-accuracy="0"/>
+  <dlg:numericfield dlg:id="nfHidden" dlg:tab-index="1" dlg:left="60" dlg:top="24" dlg:width="30" dlg:height="12" dlg:decimal-accuracy="0"/>
+  <dlg:numericfield dlg:id="nfOutput" dlg:tab-index="2" dlg:left="60" dlg:top="43" dlg:width="30" dlg:height="12" dlg:decimal-accuracy="0"/>
+  <dlg:text dlg:id="Label1" dlg:tab-index="4" dlg:left="15" dlg:top="9" dlg:width="30" dlg:height="10" dlg:value="Input"/>
+  <dlg:text dlg:id="Label2" dlg:tab-index="6" dlg:left="15" dlg:top="29" dlg:width="30" dlg:height="10" dlg:value="Hidden"/>
+  <dlg:text dlg:id="Label3" dlg:tab-index="7" dlg:left="15" dlg:top="47" dlg:width="30" dlg:height="10" dlg:value="Output"/>
+  <dlg:button dlg:id="btnOk" dlg:tab-index="3" dlg:left="10" dlg:top="63" dlg:width="40" dlg:height="16" dlg:value="Ok">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnOk_NewNetwork3_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="btnCancel" dlg:tab-index="5" dlg:left="53" dlg:top="63" dlg:width="40" dlg:height="16" dlg:value="Cancel" dlg:button-type="cancel"/>
+ </dlg:bulletinboard>
+</dlg:window>

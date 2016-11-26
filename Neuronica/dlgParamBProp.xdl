@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="dlgParamBProp" dlg:left="245" dlg:top="149" dlg:width="90" dlg:height="66" dlg:closeable="true" dlg:moveable="true" dlg:title="Backpropagation">
+ <dlg:bulletinboard>
+  <dlg:text dlg:id="Label1" dlg:tab-index="0" dlg:left="3" dlg:top="9" dlg:width="45" dlg:height="10" dlg:value="Learning rate"/>
+  <dlg:text dlg:id="Label2" dlg:tab-index="1" dlg:left="3" dlg:top="27" dlg:width="45" dlg:height="10" dlg:value="Momentum"/>
+  <dlg:button dlg:id="btnOk" dlg:tab-index="2" dlg:left="45" dlg:top="45" dlg:width="40" dlg:height="16" dlg:value="Ok">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnOk_ParamBProp_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:numericfield dlg:id="nfLearningRate" dlg:tab-index="4" dlg:left="50" dlg:top="7" dlg:width="34" dlg:height="14" dlg:decimal-accuracy="7"/>
+  <dlg:numericfield dlg:id="nfMomentum" dlg:tab-index="3" dlg:left="50" dlg:top="25" dlg:width="34" dlg:height="14" dlg:decimal-accuracy="7"/>
+ </dlg:bulletinboard>
+</dlg:window>

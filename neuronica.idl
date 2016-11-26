@@ -1,0 +1,51 @@
+/**************************************************************
+* Copyright 2016 Aleksandr Voishchev
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http ://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*************************************************************/
+
+#include <com/sun/star/uno/XInterface.idl>
+#include <com/sun/star/lang/IllegalArgumentException.idl>
+
+module neuronica
+{
+
+	interface XBackProp
+	{
+		short createNetwork3([in] long il, [in] long hl, [in] long ol);
+		void initializeNetwork([in] long randomSeed);
+		long getLayersCount();
+		long getWeightsCount();
+
+		long getLayer([in] long nLayer);
+		double getWeight([in] long nWeight);
+		void setWeight([in] long nWeight, [in] double dValue);
+
+		void createPatterns([in] long lPatterns);
+		double getPatternValue([in] long lPattern, [in] long lUnit);
+		void setPatternValue([in] long lPattern, [in] long lUnit, [in] double dValue);
+
+		void trainBPROP([in] long lLength, [in] double dMaxError, [in] double dLearningRate, [in] double dMomentum);
+		void trainRPROP([in] long lLength, [in] double dMaxError, [in] double dIncreaseFactor, [in] double dDecreaseFactor, [in] double dDeltaMin, [in] double dDeltaMax, [in] double dDeltaInit);
+		void trainSCG([in] long lLength, [in] double dMaxError, [in] double dSigma, [in] double dLambda);
+		void test([in] long lPattern);
+		double getActivation([in] long nIndex);
+		double getError();
+	};
+
+	service BackProp : XBackProp
+	{
+		create([in]string sArgument)
+		raises(::com::sun::star::lang::IllegalArgumentException);
+	};
+};
