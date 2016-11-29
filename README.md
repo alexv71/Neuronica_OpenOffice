@@ -9,9 +9,7 @@ It realized the following high efficiency multilayer perceptron learning algorit
 > - Resilient Propagation; 
 > - Scaled Conjugate Gradient. 
 
-
-Installation
-
+##Installation
 
 1. Download and install Apache OpenOffice SDK http://openoffice.apache.org/downloads.html 
 2. Clone or unzip the repository into sdk/examples directory
