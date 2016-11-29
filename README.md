@@ -1,8 +1,8 @@
 # Neuronica OpenOffice Add-Ons
 
 You have found Neuronica OpenOffice Add-Ons! This software brings flexible and efficient neural network realization for well-known spreadsheets.
-
 It realized the following high efficiency multilayer perceptron learning algorithms: 
+
 -------
 
 > - Backpropagation classic algorithm; 
@@ -11,6 +11,7 @@ It realized the following high efficiency multilayer perceptron learning algorit
 
 
 Installation
+
 
 1. Download and install Apache OpenOffice SDK http://openoffice.apache.org/downloads.html 
 2. Clone or unzip the repository into sdk/examples directory
