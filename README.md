@@ -3,11 +3,9 @@
 You have found Neuronica OpenOffice Add-Ons! This software brings flexible and efficient neural network realization for well-known spreadsheets.
 It realized the following high efficiency multilayer perceptron learning algorithms: 
 
--------
-
-> - Backpropagation classic algorithm; 
-> - Resilient Propagation; 
-> - Scaled Conjugate Gradient. 
+- Backpropagation classic algorithm; 
+- Resilient Propagation; 
+- Scaled Conjugate Gradient. 
 
 ##Installation
 
