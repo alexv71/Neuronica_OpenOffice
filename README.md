@@ -7,9 +7,9 @@ It realized the following high efficiency multilayer perceptron learning algorit
 - Resilient Propagation; 
 - Scaled Conjugate Gradient. 
 
-##Installation
+## Build
 
-1. Download and install Apache OpenOffice SDK http://openoffice.apache.org/downloads.html 
+1. Download and install Apache OpenOffice SDK http://openoffice.apache.org/downloads.html and C++ compiler
 2. Clone or unzip the repository into sdk/examples directory
 3. Edit Makefile (PRJ=../..) if it necessary
 4. Execute **make** command

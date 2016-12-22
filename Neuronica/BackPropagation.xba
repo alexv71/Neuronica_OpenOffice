@@ -2,7 +2,7 @@
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="BackPropagation" script:language="StarBasic">REM  *****  BASIC  *****
 
-&apos; VOISHCHEV
+&apos; 12212016
 
 &apos; Neural Network trainig parameters.
 Global oNeuralNet As Object
@@ -30,6 +30,7 @@ Global RandomSeed As Long
 Global TrainingEpoches As Long
 Global TrainingTimes As Long
 Global FirstLoad As Long
+Global OutputLayer As Long
 
 &apos; The dialog is kept in a global variable so that other subroutines can access it (below).
 Private oDialog As Object
@@ -58,9 +59,9 @@ Sub Workbook_Open()
    paramsSCGLambda = 0.000001
    ObjIndex = 0
    AlgIndex = 0
-   TrainDataRange = &quot;No data&quot;
-   CVDataRange = &quot;No data&quot;
-   TestDataRange = &quot;No data&quot;
+   TrainDataRange = &quot;&quot;
+   CVDataRange = &quot;&quot;
+   TestDataRange = &quot;&quot;
    RandomSeed = 0
    TrainingEpoches = 0
    TrainingTimes = 0
@@ -86,7 +87,7 @@ oDialog = createUnoDialog( DialogLibraries.GetByName( &quot;Neuronica&quot; ).Ge
 
 CheckControlsEnabled()
 
-oDialog.GetControl(&quot;lblNeuralNetwork&quot;).setText(GetNetworkStructure())
+oDialog.GetControl(&quot;tfNetworkStructure&quot;).setText(GetNetworkStructure())
 oDialog.GetControl(&quot;cbAlg&quot;).selectItemPos(AlgIndex,true)
 oDialog.GetControl(&quot;nfRandomSeed&quot;).Value = RandomSeed
 oDialog.GetControl(&quot;nfTrainingEpoches&quot;).Value = TrainingEpoches
@@ -94,6 +95,8 @@ oDialog.GetControl(&quot;nfTrainingTimes&quot;).Value = TrainingTimes
 oDialog.GetControl(&quot;fldTrainData&quot;).setText(TrainDataRange)
 oDialog.GetControl(&quot;fldCVData&quot;).setText(CVDataRange)
 oDialog.GetControl(&quot;fldTestData&quot;).setText(TestDataRange)
+oDialog.GetControl(&quot;nfOutputLayer&quot;).Value = OutputLayer
+oDialog.GetControl(&quot;nfOutputLayer&quot;).setMax(oNeuralNet.getLayersCount())
 
 &apos; Display the dialog.
 &apos; This routine call does not return until the dialog is dismissed.
@@ -106,7 +109,6 @@ End Sub
 
 Sub CheckControlsEnabled
 If oNeuralNet.getLayersCount() &gt; 0 Then 
-	oDialog.GetControl(&quot;FrameControlInit&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;nfRandomSeed&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;btnInit&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;FrameControlTrain&quot;).Model.Enabled = true
@@ -122,6 +124,7 @@ If oNeuralNet.getLayersCount() &gt; 0 Then
 	oDialog.GetControl(&quot;FrameControlTest&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;btnTestDataRange&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;fldTestData&quot;).Model.Enabled = true
+	oDialog.GetControl(&quot;nfOutputLayer&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;btnTest&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;btnSave&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;Label1&quot;).Model.Enabled = true
@@ -130,6 +133,8 @@ If oNeuralNet.getLayersCount() &gt; 0 Then
 	oDialog.GetControl(&quot;Label4&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;Label5&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;Label6&quot;).Model.Enabled = true
+	oDialog.GetControl(&quot;Label7&quot;).Model.Enabled = true
+	oDialog.GetControl(&quot;Label8&quot;).Model.Enabled = true
 End If
 
 End Sub
@@ -197,18 +202,23 @@ end sub
 
 &apos;==========================================================================================================
 
-Sub btnNew_Clicked()
+Sub btnCreate_Clicked()
 
-Dim Inputs As Long
-Dim Hiddens As Long	
-Dim Outputs As Long
+NetworkStructure = oDialog.GetControl(&quot;tfNetworkStructure&quot;).Text
+CreateResult = oNeuralNet.CreateNetwork(NetworkStructure)
 
-Dim hArray As Long 
+If CreateResult = 1 Then
+	oDialog.GetControl(&quot;lblStatus&quot;).setText(&quot;OK&quot;)
+	CheckControlsEnabled()
+Else
+	oDialog.GetControl(&quot;lblStatus&quot;).setText(&quot;Fail&quot;)
+End If
 
-DialogLibraries.LoadLibrary( &quot;Neuronica&quot; )
-nDialog = createUnoDialog( DialogLibraries.GetByName( &quot;Neuronica&quot; ).GetByName( &quot;dlgNewNetwork3&quot; ) )
-nDialog.Execute()
-end sub
+OutputLayer = oNeuralNet.getLayersCount()
+oDialog.GetControl(&quot;nfOutputLayer&quot;).setMax(OutputLayer)
+oDialog.GetControl(&quot;nfOutputLayer&quot;).Value = OutputLayer
+End sub
+
 
 Public Function GetNetworkStructure() As String
 Dim StructureString As String
@@ -218,54 +228,15 @@ LayersCount = oNeuralNet.getLayersCount()
 StructureString = &quot;&quot;
 
 If LayersCount = 0 Then
-    GetNetworkStructure = &quot;no network&quot;
+    GetNetworkStructure = &quot;&quot;
 Else
     For i = 0 To LayersCount - 2
-        StructureString = StructureString &amp; oNeuralNet.getLayer(i) &amp; &quot; : &quot;
+        StructureString = StructureString &amp; oNeuralNet.getLayer(i) &amp; &quot;.&quot;
     Next i
     GetNetworkStructure = StructureString &amp; oNeuralNet.getLayer(LayersCount - 1)
 End If
 
 End Function
-
-
-Sub btnAdd_Clicked()
-	nDialog.getControl( &quot;lbHidden&quot; ).addItem(nDialog.getControl( &quot;fldHidden&quot; ).getText(),0)
-End Sub
-
-Sub btnClear_Clicked()
-	nDialog.getControl( &quot;lbHidden&quot; ).removeItems(0, nDialog.getControl( &quot;lbHidden&quot; ).itemCount())
-End Sub
-
-Sub btnOk_NewNetwork3_Clicked()
-	Dim Inputs As Long
-	Dim Hiddens As Long	
-	Dim Outputs As Long
-	Dim btnOk As Object
-
-&apos; Check input values 3
-	Inputs = nDialog.GetControl(&quot;nfInput&quot;).Value
-	Hiddens = nDialog.GetControl(&quot;nfHidden&quot;).Value	
-	Outputs = nDialog.GetControl(&quot;nfOutput&quot;).Value
-	
-	If Inputs &lt;= 0 Then
-		MsgBox &quot;Invalid Input Value&quot;
-		Exit Sub
-	ElseIf Hiddens &lt;= 0 Then
-		MsgBox &quot;Invalid Hidden Value&quot;
-		Exit Sub
-	ElseIf Outputs &lt;= 0 Then	
-		MsgBox &quot;Invalid Output Value&quot;
-		Exit Sub
-	Else
-		btnOk = nDialog.getControl( &quot;btnOk&quot; )
-		btnOk.Model.PushButtonType = 1
-		nDialog.endExecute()
-		oNeuralNet.createNetwork3(Inputs, Hiddens, Outputs)
-		oDialog.GetControl(&quot;lblNeuralNetwork&quot;).setText(GetNetworkStructure())
-		CheckControlsEnabled()
-	EndIf
-End Sub
 
 Sub btnOk_ParamBProp_Clicked()
 	paramsBPROPLearningRate = nDialog.GetControl(&quot;nfLearningRate&quot;).Value
@@ -329,12 +300,16 @@ Sub btnSave_Clicked()
     Dim oSheet As Object
     Dim sSheetName As String
     Dim i As Long
-    
+    Dim YPos As Long
+        
     oDoc = ThisComponent
 	LayersCount = oNeuralNet.getLayersCount()
 	WeightsCount = oNeuralNet.getWeightsCount()
 	
 	If LayersCount &gt; 0 Then 
+
+&apos;-- Save header
+		CurrentXPos = 0
 		i = 1
 		Do
 			sSheetName = &quot;Neural&quot; &amp; CStr(i)
@@ -344,27 +319,82 @@ Sub btnSave_Clicked()
 		oSheet = oDoc.Sheets.getByName(sSheetName)
 		oDoc.currentController.setActiveSheet(oSheet)
 		oSheet.getCellByPosition(0, 0).setString(&quot;Backpropagation Neural Network&quot;)
-		
-		oSheet.getCellByPosition(0, 2).setString(&quot;STRUCTURE&quot;)
+
+&apos; Save network structure
+		YPos = 2
+		oSheet.getCellByPosition(0, YPos).setString(&quot;STRUCTURE&quot;)
 
         For i = 0 To LayersCount - 1
-			oSheet.getCellByPosition(0, 3+i).setString(&quot;Layer&quot; &amp; CStr(i))
-			oSheet.getCellByPosition(1, 3+i).setValue(oNeuralNet.GetLayer(i))
+			oSheet.getCellByPosition(0, YPos + 1 + i).setString(&quot;Layer&quot; &amp; CStr(i))
+			oSheet.getCellByPosition(1, YPos + 1 + i).setValue(oNeuralNet.GetLayer(i))
         Next i
 
-		oSheet.getCellByPosition(0, LayersCount + 4).setString(&quot;WEIGHTS DATA&quot;)
-        For i = 0 To oNeuralNet.WeightsCount - 1
-			oSheet.getCellByPosition(0, LayersCount + 5 + i).setString(&quot;Weight&quot; &amp; CStr(i))
-			oSheet.getCellByPosition(1, LayersCount + 5 + i).setValue(oNeuralNet.GetWeight(i))
+&apos; Save network weights
+		YPos = YPos + LayersCount + 2
+		oSheet.getCellByPosition(0, YPos).setString(&quot;WEIGHTS&quot;)
+        For i = 0 To WeightsCount - 1
+			oSheet.getCellByPosition(0, YPos + 1 + i).setString(&quot;Weight&quot; &amp; CStr(i))
+			oSheet.getCellByPosition(1, YPos + 1 + i).setValue(oNeuralNet.GetWeight(i))
         Next i
-        
-		oSheet.getCellByPosition(0, WeightsCount + LayersCount + 6).setString(&quot;ERROR&quot;)
+
+&apos; Save train parameters
+		YPos = YPos + WeightsCount + 2
+		oSheet.getCellByPosition(0, YPos).setString(&quot;PARAMETERS&quot;)
+		oSheet.getCellByPosition(0, YPos + 1).setString(&quot;RandomSeed&quot;)
+		oSheet.getCellByPosition(1, YPos + 1).setValue(oDialog.GetControl(&quot;nfRandomSeed&quot;).Value)
+		oSheet.getCellByPosition(0, YPos + 2).setString(&quot;TrainSet&quot;)
+		oSheet.getCellByPosition(1, YPos + 2).setString(oDialog.GetControl(&quot;fldTrainData&quot;).getText())
+		oSheet.getCellByPosition(0, YPos + 3).setString(&quot;Algorithm&quot;)
+		Select Case oDialog.GetControl(&quot;cbAlg&quot;).getSelectedItemPos()
+		Case 0: 
+			oSheet.getCellByPosition(1, YPos + 3).setString(&quot;BProp&quot;)
+			oSheet.getCellByPosition(0, YPos + 4).setString(&quot;LearningRate&quot;)
+			oSheet.getCellByPosition(1, YPos + 4).setValue(paramsBPROPLearningRate)
+			oSheet.getCellByPosition(0, YPos + 5).setString(&quot;Momentum&quot;)
+			oSheet.getCellByPosition(1, YPos + 5).setValue(paramsBPROPMomentum)
+			YPos = YPos + 6
+		Case 1: 
+			oSheet.getCellByPosition(1, YPos + 3).setString(&quot;RProp&quot;)
+			oSheet.getCellByPosition(0, YPos + 4).setString(&quot;IncreaseFactor&quot;)
+			oSheet.getCellByPosition(1, YPos + 4).setValue(paramsRPROPIncreaseFactor)
+			oSheet.getCellByPosition(0, YPos + 5).setString(&quot;DecreaseFactor&quot;)
+			oSheet.getCellByPosition(1, YPos + 5).setValue(paramsRPROPDecreaseFactor)
+			oSheet.getCellByPosition(0, YPos + 6).setString(&quot;DeltaMin&quot;)
+			oSheet.getCellByPosition(1, YPos + 6).setValue(paramsRPROPDeltaMin)
+			oSheet.getCellByPosition(0, YPos + 7).setString(&quot;DeltaMax&quot;)
+			oSheet.getCellByPosition(1, YPos + 7).setValue(paramsRPROPDeltaMax)
+			oSheet.getCellByPosition(0, YPos + 8).setString(&quot;DeltaInit&quot;)
+			oSheet.getCellByPosition(1, YPos + 8).setValue(paramsRPROPDeltaInit)
+			YPos = YPos + 9
+		Case 2: 
+			oSheet.getCellByPosition(1, YPos + 3).setString(&quot;SCG&quot;)
+			oSheet.getCellByPosition(0, YPos + 4).setString(&quot;Sigma&quot;)
+			oSheet.getCellByPosition(1, YPos + 4).setValue(paramsSCGSigma)
+			oSheet.getCellByPosition(0, YPos + 5).setString(&quot;Lambda&quot;)
+			oSheet.getCellByPosition(1, YPos + 5).setValue(paramsSCGLambda)
+			YPos = YPos + 6
+		End Select
+
+		oSheet.getCellByPosition(0, YPos).setString(&quot;TrainingEpoches&quot;)
+		oSheet.getCellByPosition(1, YPos).setValue(TrainingEpoches)
+		oSheet.getCellByPosition(0, YPos + 1).setString(&quot;TrainingTimes&quot;)
+		oSheet.getCellByPosition(1, YPos + 1).setValue(TrainingTimes)
+		oSheet.getCellByPosition(0, YPos + 2).setString(&quot;CVSet&quot;)
+		oSheet.getCellByPosition(1, YPos + 2).setString(oDialog.GetControl(&quot;fldCVData&quot;).getText())
+		oSheet.getCellByPosition(0, YPos + 3).setString(&quot;TestSet&quot;)
+		oSheet.getCellByPosition(1, YPos + 3).setString(oDialog.GetControl(&quot;fldTestData&quot;).getText())
+		oSheet.getCellByPosition(0, YPos + 4).setString(&quot;OutputLayer&quot;)
+		oSheet.getCellByPosition(1, YPos + 4).setValue(OutputLayer)
+
+&apos; Save Error dynamics   
+&apos;		YPos = 0     
+&apos;		oSheet.getCellByPosition(3, YPos).setString(&quot;ERROR&quot;)
 	
-        For i = 1 To UBound(ErrorArray, 2)
-			oSheet.getCellByPosition(0, WeightsCount + LayersCount + 6 + i).setValue(ErrorArray(1, i))
-			oSheet.getCellByPosition(1, WeightsCount + LayersCount + 6 + i).setValue(ErrorArray(2, i))
-			oSheet.getCellByPosition(2, WeightsCount + LayersCount + 6 + i).setValue(ErrorArray(3, i))
-        Next i
+&apos;        For i = 1 To UBound(ErrorArray, 2)
+&apos;			oSheet.getCellByPosition(3, i).setValue(ErrorArray(1, i))
+&apos;			oSheet.getCellByPosition(4, i).setValue(ErrorArray(2, i))
+&apos;			oSheet.getCellByPosition(5, i).setValue(ErrorArray(3, i))
+&apos;        Next i
         		
 	Else
 		MsgBox &quot;No network for saving&quot;
@@ -403,11 +433,14 @@ Sub btnLoad_Clicked()
 		Exit Sub
 	Else
 		oNeuralNet.createNetwork3(Inputs, Hiddens, Outputs)
-		oDialog.GetControl(&quot;lblNeuralNetwork&quot;).setText(GetNetworkStructure())
+		oDialog.GetControl(&quot;tfNetworkStructure&quot;).setText(GetNetworkStructure())
       For i = 0 To oNeuralNet.GetWeightsCount() - 1
         oNeuralNet.SetWeight(i, oSheet.getCellByPosition(1, 8 + i).getValue())
       Next i
       CheckControlsEnabled()
+      OutputLayer = oNeuralNet.getLayersCount()
+      oDialog.GetControl(&quot;nfOutputLayer&quot;).setMax(OutputLayer)
+  	  oDialog.GetControl(&quot;nfOutputLayer&quot;).Value = OutputLayer
 	End If
     End If
 End Sub
@@ -463,6 +496,11 @@ TrainingTimes = oDialog.GetControl(&quot;nfTrainingTimes&quot;).Value
 ErrorArray = DimArray(3, TrainingTimes)
 CurrentEpoch = 0
 
+ProgressValue = 0
+ProgressInc = 100 / TrainingTimes
+oProgressBar = oDialog.getModel().getByName(&quot;pbTrain&quot;)
+oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, 0)
+
 Select Case oDialog.GetControl(&quot;cbAlg&quot;).getSelectedItemPos()
 Case 0: 
 	For i = 1 to TrainingTimes
@@ -471,8 +509,14 @@ Case 0:
 		CurrentEpoch = CurrentEpoch + TrainingEpoches
 		ErrorArray(1, i) = CurrentEpoch
 		ErrorArray(2, i) = oNeuralNet.getError()
-		LoadDataset(&quot;fldCVData&quot;)
-		ErrorArray(3, i) = oNeuralNet.getError()
+		If (oDialog.GetControl(&quot;fldCVData&quot;).Text &lt;&gt; &quot;&quot;) Then
+			LoadDataset(&quot;fldCVData&quot;)
+			ErrorArray(3, i) = oNeuralNet.getError()
+		Else
+			ErrorArray(3, i) = 0
+		End If
+	ProgressValue = ProgressValue + ProgressInc
+	oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, ProgressValue)
 	Next i	
 Case 1: 
 	For i = 1 to TrainingTimes
@@ -481,8 +525,14 @@ Case 1:
 		CurrentEpoch = CurrentEpoch + TrainingEpoches
 		ErrorArray(1, i) = CurrentEpoch
 		ErrorArray(2, i) = oNeuralNet.getError()
-		LoadDataset(&quot;fldCVData&quot;)
-		ErrorArray(3, i) = oNeuralNet.getError()
+		If (oDialog.GetControl(&quot;fldCVData&quot;).Text &lt;&gt; &quot;&quot;) Then
+			LoadDataset(&quot;fldCVData&quot;)
+			ErrorArray(3, i) = oNeuralNet.getError()
+		Else
+			ErrorArray(3, i) = 0
+		End If
+	ProgressValue = ProgressValue + ProgressInc
+	oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, ProgressValue)
 	Next i	
 Case 2: 
 	For i = 1 to TrainingTimes
@@ -491,12 +541,18 @@ Case 2:
 		CurrentEpoch = CurrentEpoch + TrainingEpoches
 		ErrorArray(1, i) = CurrentEpoch
 		ErrorArray(2, i) = oNeuralNet.getError()
-		LoadDataset(&quot;fldCVData&quot;)
-		ErrorArray(3, i) = oNeuralNet.getError()
+		If (oDialog.GetControl(&quot;fldCVData&quot;).Text &lt;&gt; &quot;&quot;) Then
+			LoadDataset(&quot;fldCVData&quot;)
+			ErrorArray(3, i) = oNeuralNet.getError()
+		Else
+			ErrorArray(3, i) = ErrorArray(2, i)
+		End If
+	ProgressValue = ProgressValue + ProgressInc
+	oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, ProgressValue)
 	Next i	
 End Select
-MsgBox &quot;Training complete!&quot;
-
+MsgBox &quot;Training complete. MSE=&quot; &amp; oNeuralNet.getError()
+oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, 0)
 Exit Sub
 ErrorHandler:
 	MsgBox &quot;Error in data range! Please check it.&quot;
@@ -512,29 +568,28 @@ On Error GoTo ErrorHandler
 
 RangeStr = oDialog.GetControl(&quot;fldTestData&quot;).getText()
 oSheet = ThisComponent.Sheets.getByName(Mid(RangeStr,2,InStr(RangeStr, &quot;.&quot;)-2))
-&apos;oSheet = ThisComponent.getCurrentController().getActiveSheet()
 oRangeAddr = oSheet.getCellRangeByName(RangeStr).RangeAddress
 
 LayersCount = oNeuralNet.getLayersCount()
 firstLayer = oNeuralNet.getLayer(0)
-lastLayer = oNeuralNet.getLayer(LayersCount - 1)
+lastLayer = oNeuralNet.getLayer(oDialog.GetControl(&quot;nfOutputLayer&quot;).getValue()-1)
 
 NodesCount = 0
-For i = 0 To LayersCount - 1
+For i = 0 To oDialog.GetControl(&quot;nfOutputLayer&quot;).getValue()-1
   NodesCount = NodesCount + oNeuralNet.getLayer(i)
 Next i
         
-If firstLayer + lastLayer &lt;&gt; oRangeAddr.endColumn - oRangeAddr.startColumn + 1 Then Goto ErrorHandler 
+If firstLayer &lt;&gt; oRangeAddr.endColumn - oRangeAddr.startColumn + 1 Then Goto ErrorHandler 
 
 oNeuralNet.createPatterns(oRangeAddr.endRow - oRangeAddr.startRow + 1)
 
 For Row = 0 to oRangeAddr.endRow - oRangeAddr.startRow
-  For Col = 0 to oRangeAddr.endColumn - oRangeAddr.startColumn - lastLayer
+  For Col = 0 to oRangeAddr.endColumn - oRangeAddr.startColumn
     oNeuralNet.setPatternValue(Row, Col, oSheet.getCellByPosition(Col + oRangeAddr.startColumn, Row + oRangeAddr.startRow).getValue())
   Next Col
   oNeuralNet.test(Row)
-  For Col = oRangeAddr.endColumn - oRangeAddr.startColumn - lastLayer + 1 to oRangeAddr.endColumn - oRangeAddr.startColumn
-     oSheet.getCellByPosition(Col + oRangeAddr.startColumn, Row + oRangeAddr.startRow).setValue(oNeuralNet.getActivation(NodesCount - 1 - oRangeAddr.endColumn + oRangeAddr.startColumn + Col))
+  For Col = oRangeAddr.endColumn - oRangeAddr.startColumn + 1 to oRangeAddr.endColumn - oRangeAddr.startColumn + lastLayer
+     oSheet.getCellByPosition(Col + oRangeAddr.startColumn, Row + oRangeAddr.startRow).setValue(oNeuralNet.getActivation(NodesCount - 1 - oRangeAddr.endColumn + oRangeAddr.startColumn - lastLayer + Col))
   Next Col
 Next Row
 
@@ -559,6 +614,13 @@ Sub nfTrainingTimes_Changed()
 	TrainingTimes = oDialog.GetControl(&quot;nfTrainingTimes&quot;).Value
 End Sub
 
+Sub nfOutputLayer_Changed()
+	OutputLayer = oDialog.GetControl(&quot;nfOutputLayer&quot;).Value
+End Sub
+
+Sub TestButton_Clicked()
+	MsgBox oDialog.GetControl(&quot;fldTrainData&quot;).getText()
+End Sub
 
 
 </script:module>

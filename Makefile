@@ -50,7 +50,6 @@ COMP_LIBRARY_FILES=\
 	Neuronica/BackPropagation.xba\
 	Neuronica/DannysLib.xba\
 	Neuronica/dlgBackPropagation.xdl\
-	Neuronica/dlgNewNetwork3.xdl\
 	Neuronica/dlgParamBProp.xdl\
 	Neuronica/dlgParamRProp.xdl\
 	Neuronica/dlgParamSCG.xdl
@@ -106,7 +105,7 @@ $(SHAREDLIB_OUT)/%.$(SHAREDLIB_EXT) : $(SLOFILES)
 	-$(MKDIR) $(subst /,$(PS),$(SAMPLE_GEN_OUT))
 	$(LINK) $(COMP_LINK_FLAGS) /OUT:$@ \
 	/MAP:$(SAMPLE_GEN_OUT)/$(subst $(SHAREDLIB_EXT),map,$(@F)) $(SLOFILES) \
-	$(CPPUHELPERLIB) $(CPPULIB) $(SALLIB) msvcrt.lib kernel32.lib
+	$(CPPUHELPERLIB) $(CPPULIB) $(SALLIB) msvcrt.lib kernel32.lib 
 	$(LINK_MANIFEST)
 else
 #$(SHAREDLIB_OUT)/%.$(SHAREDLIB_EXT) : $(SLOFILES) $(COMP_MAPFILE)

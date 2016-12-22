@@ -1,46 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
-<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="dlgBackPropagation" dlg:left="356" dlg:top="109" dlg:width="181" dlg:height="261" dlg:closeable="true" dlg:moveable="true" dlg:title="Backpropagation manager">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="dlgBackPropagation" dlg:left="356" dlg:top="109" dlg:width="167" dlg:height="258" dlg:closeable="true" dlg:moveable="true" dlg:title="Backpropagation manager">
  <dlg:styles>
   <dlg:style dlg:style-id="0" dlg:font-weight="150"/>
  </dlg:styles>
  <dlg:bulletinboard>
-  <dlg:button dlg:id="btnTrainDataRange" dlg:tab-index="5" dlg:disabled="true" dlg:left="13" dlg:top="86" dlg:width="12" dlg:height="12" dlg:tag="fldTrainData" dlg:value="...">
+  <dlg:button dlg:id="btnTrainDataRange" dlg:tab-index="5" dlg:disabled="true" dlg:left="13" dlg:top="80" dlg:width="12" dlg:height="12" dlg:tag="fldTrainData" dlg:value="...">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.subEventShrink?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:button dlg:id="btnClose" dlg:tab-index="17" dlg:left="135" dlg:top="235" dlg:width="40" dlg:height="16" dlg:value="Close" dlg:button-type="ok"/>
-  <dlg:button dlg:id="btnBew" dlg:tab-index="0" dlg:left="134" dlg:top="10" dlg:width="40" dlg:height="16" dlg:value="New...">
-   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnNew_Clicked?language=Basic&amp;location=application" script:language="Script"/>
-  </dlg:button>
-  <dlg:button dlg:id="btnSave" dlg:tab-index="1" dlg:disabled="true" dlg:left="134" dlg:top="29" dlg:width="40" dlg:height="16" dlg:value="Save">
+  <dlg:button dlg:id="btnClose" dlg:tab-index="18" dlg:left="135" dlg:top="237" dlg:width="26" dlg:height="12" dlg:value="Close" dlg:button-type="ok"/>
+  <dlg:button dlg:id="btnSave" dlg:tab-index="14" dlg:disabled="true" dlg:left="129" dlg:top="158" dlg:width="26" dlg:height="12" dlg:value="Save">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnSave_Clicked?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:button dlg:id="btnLoad" dlg:tab-index="2" dlg:left="134" dlg:top="50" dlg:width="40" dlg:height="16" dlg:value="Load">
+  <dlg:button dlg:id="btnLoad" dlg:tab-index="2" dlg:left="109" dlg:top="17" dlg:width="26" dlg:height="12" dlg:value="Load">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnLoad_Clicked?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:titledbox dlg:id="FrameControl3" dlg:tab-index="20" dlg:left="7" dlg:top="5" dlg:width="124" dlg:height="30">
+  <dlg:titledbox dlg:id="FrameControl3" dlg:tab-index="21" dlg:left="7" dlg:top="5" dlg:width="154" dlg:height="30">
    <dlg:title dlg:value="Neural network"/>
   </dlg:titledbox>
-  <dlg:button dlg:id="btnInit" dlg:tab-index="4" dlg:disabled="true" dlg:left="77" dlg:top="52" dlg:width="46" dlg:height="12" dlg:value="Initialize">
+  <dlg:button dlg:id="btnInit" dlg:tab-index="4" dlg:disabled="true" dlg:left="87" dlg:top="52" dlg:width="28" dlg:height="12" dlg:value="Initialize">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnInit_Clicked?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:text dlg:style-id="0" dlg:id="lblNeuralNetwork" dlg:tab-index="21" dlg:left="13" dlg:top="20" dlg:width="111" dlg:height="12" dlg:value="No network"/>
   <dlg:text dlg:id="Label1" dlg:tab-index="23" dlg:disabled="true" dlg:left="13" dlg:top="53" dlg:width="38" dlg:height="10" dlg:value="Random seed"/>
-  <dlg:numericfield dlg:id="nfRandomSeed" dlg:tab-index="3" dlg:disabled="true" dlg:left="53" dlg:top="52" dlg:width="20" dlg:height="12" dlg:decimal-accuracy="0" dlg:value="0">
+  <dlg:numericfield dlg:id="nfRandomSeed" dlg:tab-index="3" dlg:disabled="true" dlg:left="53" dlg:top="52" dlg:width="30" dlg:height="12" dlg:decimal-accuracy="0" dlg:value="0" dlg:spin="true">
    <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.nfRandomSeed_Changed?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:numericfield>
-  <dlg:button dlg:id="btnTrain" dlg:tab-index="13" dlg:disabled="true" dlg:left="85" dlg:top="184" dlg:width="40" dlg:height="12" dlg:value="Train">
+  <dlg:button dlg:id="btnTrain" dlg:tab-index="13" dlg:disabled="true" dlg:left="100" dlg:top="158" dlg:width="26" dlg:height="12" dlg:value="Train">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnTrain_Clicked?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:button dlg:id="btnParameters" dlg:tab-index="8" dlg:disabled="true" dlg:left="89" dlg:top="103" dlg:width="37" dlg:height="12" dlg:value="Parameters...">
+  <dlg:button dlg:id="btnParameters" dlg:tab-index="8" dlg:disabled="true" dlg:left="118" dlg:top="97" dlg:width="37" dlg:height="12" dlg:value="Parameters...">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnParameters_Clicked?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:button dlg:id="btnTest" dlg:tab-index="16" dlg:disabled="true" dlg:left="84" dlg:top="233" dlg:width="40" dlg:height="12" dlg:value="Test">
+  <dlg:button dlg:id="btnTest" dlg:tab-index="17" dlg:disabled="true" dlg:left="97" dlg:top="230" dlg:width="26" dlg:height="12" dlg:value="Test">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnTest_Clicked?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:timefield dlg:id="fldTrainData" dlg:tab-index="6" dlg:disabled="true" dlg:left="27" dlg:top="86" dlg:width="98" dlg:height="12" dlg:text="No data"/>
-  <dlg:timefield dlg:id="fldTestData" dlg:tab-index="15" dlg:disabled="true" dlg:left="27" dlg:top="216" dlg:width="96" dlg:height="12" dlg:text="No data"/>
-  <dlg:menulist dlg:id="cbAlg" dlg:tab-index="7" dlg:disabled="true" dlg:left="13" dlg:top="103" dlg:width="74" dlg:height="12" dlg:spin="true" dlg:linecount="3">
+  <dlg:timefield dlg:id="fldTrainData" dlg:tab-index="6" dlg:disabled="true" dlg:left="27" dlg:top="80" dlg:width="128" dlg:height="12"/>
+  <dlg:timefield dlg:id="fldTestData" dlg:tab-index="16" dlg:disabled="true" dlg:left="27" dlg:top="214" dlg:width="96" dlg:height="12"/>
+  <dlg:menulist dlg:id="cbAlg" dlg:tab-index="7" dlg:disabled="true" dlg:left="13" dlg:top="97" dlg:width="100" dlg:height="12" dlg:spin="true" dlg:linecount="3">
    <dlg:menupopup>
     <dlg:menuitem dlg:value="BackPropagation"/>
     <dlg:menuitem dlg:value="Resilient Propagation"/>
@@ -48,32 +44,43 @@
    </dlg:menupopup>
    <script:event script:event-name="on-itemstatechange" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.cbAlg_Changed?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:menulist>
-  <dlg:button dlg:id="btnTestDataRange" dlg:tab-index="14" dlg:disabled="true" dlg:left="13" dlg:top="216" dlg:width="12" dlg:height="12" dlg:tag="fldTestData" dlg:value="...">
+  <dlg:button dlg:id="btnTestDataRange" dlg:tab-index="15" dlg:disabled="true" dlg:left="14" dlg:top="214" dlg:width="12" dlg:height="12" dlg:tag="fldTestData" dlg:value="...">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.subEventShrink?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:numericfield dlg:id="nfTrainingEpoches" dlg:tab-index="9" dlg:disabled="true" dlg:left="59" dlg:top="122" dlg:width="35" dlg:height="12" dlg:decimal-accuracy="0" dlg:value="0" dlg:value-min="0" dlg:value-max="100000000">
+  <dlg:numericfield dlg:id="nfTrainingEpoches" dlg:tab-index="9" dlg:disabled="true" dlg:left="50" dlg:top="114" dlg:width="26" dlg:height="12" dlg:decimal-accuracy="0" dlg:value="0" dlg:value-min="0" dlg:value-max="100000000">
    <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.nfTrainingEpoches_Changed?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:numericfield>
-  <dlg:numericfield dlg:id="nfTrainingTimes" dlg:tab-index="10" dlg:disabled="true" dlg:left="59" dlg:top="138" dlg:width="35" dlg:height="12" dlg:decimal-accuracy="0" dlg:value="0" dlg:value-min="0" dlg:value-max="100000000">
+  <dlg:numericfield dlg:id="nfTrainingTimes" dlg:tab-index="10" dlg:disabled="true" dlg:left="111" dlg:top="114" dlg:width="26" dlg:height="12" dlg:decimal-accuracy="0" dlg:value="0" dlg:value-min="0" dlg:value-max="100000000">
    <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.nfTrainingTimes_Changed?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:numericfield>
-  <dlg:button dlg:id="btnCVDataRange" dlg:tab-index="11" dlg:disabled="true" dlg:left="13" dlg:top="168" dlg:width="12" dlg:height="12" dlg:tag="fldCVData" dlg:value="...">
+  <dlg:button dlg:id="btnCVDataRange" dlg:tab-index="11" dlg:disabled="true" dlg:left="13" dlg:top="142" dlg:width="12" dlg:height="12" dlg:tag="fldCVData" dlg:value="...">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.subEventShrink?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:timefield dlg:id="fldCVData" dlg:tab-index="12" dlg:disabled="true" dlg:left="27" dlg:top="168" dlg:width="98" dlg:height="12" dlg:text="No data"/>
-  <dlg:text dlg:id="Label2" dlg:tab-index="24" dlg:disabled="true" dlg:left="13" dlg:top="124" dlg:width="44" dlg:height="12" dlg:value="Training length"/>
-  <dlg:text dlg:id="Label3" dlg:tab-index="25" dlg:disabled="true" dlg:left="98" dlg:top="124" dlg:width="30" dlg:height="12" dlg:value="epoches"/>
-  <dlg:text dlg:id="Label4" dlg:tab-index="26" dlg:disabled="true" dlg:left="13" dlg:top="140" dlg:width="44" dlg:height="12" dlg:value="by"/>
-  <dlg:text dlg:id="Label5" dlg:tab-index="27" dlg:disabled="true" dlg:left="98" dlg:top="140" dlg:width="30" dlg:height="12" dlg:value="times"/>
-  <dlg:text dlg:id="Label6" dlg:tab-index="28" dlg:disabled="true" dlg:left="15" dlg:top="156" dlg:width="74" dlg:height="10" dlg:value="Cross validation set"/>
-  <dlg:titledbox dlg:id="FrameControlInit" dlg:tab-index="22" dlg:left="7" dlg:top="40" dlg:width="124" dlg:height="30">
-   <dlg:title dlg:value="Initialize"/>
-  </dlg:titledbox>
-  <dlg:titledbox dlg:id="FrameControlTrain" dlg:tab-index="18" dlg:disabled="true" dlg:left="7" dlg:top="75" dlg:width="124" dlg:height="127">
+  <dlg:timefield dlg:id="fldCVData" dlg:tab-index="12" dlg:disabled="true" dlg:left="27" dlg:top="142" dlg:width="128" dlg:height="12"/>
+  <dlg:text dlg:id="Label2" dlg:tab-index="24" dlg:disabled="true" dlg:left="13" dlg:top="114" dlg:width="33" dlg:height="12" dlg:value="Train length"/>
+  <dlg:text dlg:id="Label3" dlg:tab-index="25" dlg:disabled="true" dlg:left="78" dlg:top="114" dlg:width="30" dlg:height="12" dlg:value="epoches by"/>
+  <dlg:text dlg:id="Label5" dlg:tab-index="26" dlg:disabled="true" dlg:left="140" dlg:top="114" dlg:width="17" dlg:height="12" dlg:value="times"/>
+  <dlg:text dlg:id="Label6" dlg:tab-index="27" dlg:disabled="true" dlg:left="13" dlg:top="130" dlg:width="74" dlg:height="10" dlg:value="Cross-validation set"/>
+  <dlg:titledbox dlg:id="FrameControlTrain" dlg:tab-index="19" dlg:disabled="true" dlg:left="7" dlg:top="41" dlg:width="154" dlg:height="145">
    <dlg:title dlg:value="Train"/>
   </dlg:titledbox>
-  <dlg:titledbox dlg:id="FrameControlTest" dlg:tab-index="19" dlg:disabled="true" dlg:left="7" dlg:top="206" dlg:width="124" dlg:height="46">
+  <dlg:titledbox dlg:id="FrameControlTest" dlg:tab-index="20" dlg:disabled="true" dlg:left="7" dlg:top="193" dlg:width="124" dlg:height="57">
    <dlg:title dlg:value="Test"/>
   </dlg:titledbox>
+  <dlg:button dlg:id="btnCreate" dlg:tab-index="1" dlg:left="80" dlg:top="17" dlg:width="26" dlg:height="12" dlg:value="Create">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.btnCreate_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:textfield dlg:id="tfNetworkStructure" dlg:tab-index="0" dlg:left="13" dlg:top="17" dlg:width="63" dlg:height="12"/>
+  <dlg:text dlg:style-id="0" dlg:id="lblStatus" dlg:tab-index="22" dlg:left="139" dlg:top="17" dlg:width="18" dlg:height="12"/>
+  <dlg:text dlg:id="Label4" dlg:tab-index="28" dlg:disabled="true" dlg:left="13" dlg:top="67" dlg:width="74" dlg:height="10" dlg:value="Train set"/>
+  <dlg:text dlg:id="Label7" dlg:tab-index="29" dlg:disabled="true" dlg:left="16" dlg:top="201" dlg:width="74" dlg:height="10" dlg:value="Test set"/>
+  <dlg:progressmeter dlg:id="pbTrain" dlg:tab-index="30" dlg:left="12" dlg:top="174" dlg:width="140" dlg:height="8" dlg:value="0"/>
+  <dlg:text dlg:id="Label8" dlg:tab-index="32" dlg:disabled="true" dlg:left="17" dlg:top="233" dlg:width="39" dlg:height="12" dlg:value="Output layer"/>
+  <dlg:numericfield dlg:id="nfOutputLayer" dlg:tab-index="31" dlg:disabled="true" dlg:left="59" dlg:top="230" dlg:width="30" dlg:height="12" dlg:decimal-accuracy="0" dlg:value-min="2" dlg:spin="true">
+   <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.nfOutputLayer_Changed?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:numericfield>
+  <dlg:button dlg:id="CommandButton1" dlg:tab-index="33" dlg:left="139" dlg:top="198" dlg:width="22" dlg:height="18" dlg:value="CommandButton1">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Neuronica.BackPropagation.TestButton_Clicked?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
  </dlg:bulletinboard>
 </dlg:window>

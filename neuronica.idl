@@ -22,6 +22,7 @@ module neuronica
 
 	interface XBackProp
 	{
+		short createNetwork([in]string sInitString);
 		short createNetwork3([in] long il, [in] long hl, [in] long ol);
 		void initializeNetwork([in] long randomSeed);
 		long getLayersCount();

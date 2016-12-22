@@ -106,9 +106,7 @@ int NeuralNet::createNetwork(long nLayersCount, long *nLayers)
         m_plNodePtr[0] = 0;
         for (i = 1; i < m_lLayersCount; i++)
         {
-//                m_lWeightsCount += m_plLayers[i]*(m_plLayers[i-1]);
                 m_lWeightsCount += m_plLayers[i]*(m_plLayers[i-1]+1);
-//!!!!!!
                 m_plWeightPtr[i] = m_lWeightsCount;
                 m_plNodePtr[i] = m_plNodePtr[i-1]+m_plLayers[i-1];
         }
@@ -130,7 +128,7 @@ int NeuralNet::createNetwork(long nLayersCount, long *nLayers)
         for (i = 0; i < m_lNodesCount; i++)
               m_pdNodes[i] = 0;
 
-	return 0;
+	return 1;
 }
 
 void NeuralNet::initializeNetwork(unsigned int uiRandomSeed)
@@ -142,9 +140,7 @@ void NeuralNet::initializeNetwork(unsigned int uiRandomSeed)
                 m_pdWeights[i] = (0.5-(rand() % 1000)/1000.0)*2;
                 m_pdWeightsOld[i] = m_pdWeights[i];
         }
-// переписать нормально на с++
         for (i = 0; i < m_lNodesCount; i++)
-//              m_pdNodes[i] = 0;
               m_pdNodes[i] = (rand() % 1000)/1000.0;
 
         return;
@@ -232,16 +228,15 @@ inline double NeuralNet::backPropagate(double *pWeights){
                         }
                 }
                 // Calculate Error
-                pState = m_lNodesCount-1;
+				pState = m_lNodesCount - m_plLayers[m_lLayersCount - 1];
                 for (i = 0; i < m_plLayers[m_lLayersCount-1]; i++)
                 {
-                        Error = m_pdNodes[pState] - m_pdPatterns[pErrorPattern++];
+                        Error = m_pdNodes[pState++] - m_pdPatterns[pErrorPattern++];
                         Error *= Error;
                         ErrorSum += Error;
-                        pState--;
                 }
         }// End of Pattern
-        return ErrorSum;
+		return ErrorSum / (m_lPatternsCount * m_plLayers[m_lLayersCount - 1]);
 }
 
 void  NeuralNet::setPattern(long lPattern, long lUnit, double dValue){
@@ -585,15 +580,15 @@ double NeuralNet::getError()
 			}
 		}
 		// Calculate Error
-		pState = m_lNodesCount - 1;
+		pState = m_lNodesCount - m_plLayers[m_lLayersCount - 1];
 		for (i = 0; i < m_plLayers[m_lLayersCount - 1]; i++)
 		{
-			Error = m_pdNodes[pState--] - m_pdPatterns[pPattern++];
+			Error = m_pdNodes[pState++] - m_pdPatterns[pPattern++];
 			Error *= Error;
 			ErrorSum += Error;
 		}
 	}// End of Pattern
-	return ErrorSum;
+	return ErrorSum / (m_lPatternsCount * m_plLayers[m_lLayersCount - 1]);
 }
 
 double NeuralNet::getErrorWithoutUnit(long lNumUnit)
@@ -635,15 +630,15 @@ double NeuralNet::getErrorWithoutUnit(long lNumUnit)
                         }
                 }
                 // Calculate Error
-                pState = m_lNodesCount-1;
+				pState = m_lNodesCount - m_plLayers[m_lLayersCount - 1];
                 for (i = 0; i < m_plLayers[m_lLayersCount-1]; i++)
                 {
-                        Error = m_pdNodes[pState--] - m_pdPatterns[pPattern++];
+                        Error = m_pdNodes[pState++] - m_pdPatterns[pPattern++];
                         Error *= Error;
                         ErrorSum += Error;
                 }
         }// End of Pattern
-        return ErrorSum;
+		return ErrorSum / (m_lPatternsCount * m_plLayers[m_lLayersCount - 1]);
 }
 
 double NeuralNet::GetRelevance(long lNode)

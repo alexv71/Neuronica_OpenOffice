@@ -70,6 +70,8 @@ public:
         throw (Exception);
 
 	// XBackProp
+	virtual sal_Int16 SAL_CALL createNetwork(OUString const & sInitString)
+		throw (RuntimeException);
 	virtual sal_Int16 SAL_CALL createNetwork3(sal_Int32 il, sal_Int32 hl, sal_Int32 ol)
 		throw (RuntimeException);
 	virtual void SAL_CALL initializeNetwork(sal_Int32 randomSeed)
@@ -122,8 +124,45 @@ void BackPropImpl::initialize( Sequence< Any > const & args )
 {
 }
 
-
 // XBackProp implementation 
+sal_Int16 BackPropImpl::createNetwork(OUString const & sInitString)
+throw (RuntimeException)
+{
+	long i, lLength, lValue;
+	short flag = 0, pos = 0, pos1 = 0;
+	OUString sDelim = OUString(RTL_CONSTASCII_USTRINGPARAM("."));
+	OUString sValue;
+
+	lLength = 0;
+	while (1){
+		pos = sInitString.indexOf(sDelim, pos);
+		if (pos++ == -1) break;
+		lLength++;
+	}
+	if (lLength < 2) return 0;
+
+	long *plNetworkStructure = new long[lLength + 1];
+	
+	pos = 0;
+	for (i = 0; i < lLength; i++) {
+		pos1 = sInitString.indexOf(sDelim, pos);
+		sValue = sInitString.copy(pos, pos1);
+		lValue = sValue.toInt32();
+		if (lValue <= 0) { delete[] plNetworkStructure;  return 0; }
+		plNetworkStructure[i] = lValue;
+		pos = pos1 + 1;
+	}
+	pos1 = sInitString.getLength();
+	sValue = sInitString.copy(pos, pos1);
+	lValue = sValue.toInt32();
+	if (lValue <= 0) { delete[] plNetworkStructure;  return 0; }
+	plNetworkStructure[i] = lValue;
+
+	short result = NeuralNet::createNetwork(lLength + 1, plNetworkStructure);
+	delete[] plNetworkStructure;
+	return result;
+}
+
 sal_Int16 BackPropImpl::createNetwork3(sal_Int32 il, sal_Int32 hl, sal_Int32 ol)
 throw (RuntimeException)
 {
