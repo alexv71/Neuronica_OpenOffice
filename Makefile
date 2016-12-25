@@ -59,8 +59,7 @@ COMP_MISC_FILES=\
 	description.xml
 
 COMP_DESC_FILES=\
-	desc/en.txt\
-	desc/ru.txt
+	desc/en.txt
 
 IDLFILES = neuronica.idl
 

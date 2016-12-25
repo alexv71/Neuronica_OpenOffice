@@ -2,7 +2,7 @@
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="BackPropagation" script:language="StarBasic">REM  *****  BASIC  *****
 
-&apos; 12212016
+&apos; 12242016
 
 &apos; Neural Network trainig parameters.
 Global oNeuralNet As Object
@@ -18,7 +18,6 @@ Global paramsSCGSigma As Double
 Global paramsSCGLambda As Double
 
 Global ErrorArray() As Double
-
 
 &apos; Main Form parameters
 Global ObjIndex As Long
@@ -67,6 +66,7 @@ Sub Workbook_Open()
    TrainingTimes = 0
    oNeuralNet = CreateUnoService( &quot;neuronica.BackProp&quot; )
    FirstLoad = 1
+   ErrorArray = DimArray(0,0)
 End Sub
  
 Sub Main()
@@ -110,7 +110,6 @@ End Sub
 Sub CheckControlsEnabled
 If oNeuralNet.getLayersCount() &gt; 0 Then 
 	oDialog.GetControl(&quot;nfRandomSeed&quot;).Model.Enabled = true
-	oDialog.GetControl(&quot;btnInit&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;FrameControlTrain&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;btnTrainDataRange&quot;).Model.Enabled = true
 	oDialog.GetControl(&quot;fldTrainData&quot;).Model.Enabled = true
@@ -260,7 +259,6 @@ Sub btnOk_ParamSCG_Clicked()
 End Sub
 
 Sub btnInit_Clicked()
-	oNeuralNet.initializeNetwork(oDialog.GetControl(&quot;nfRandomSeed&quot;).Value)
 End Sub
 
 Sub btnParameters_Clicked()
@@ -387,14 +385,13 @@ Sub btnSave_Clicked()
 		oSheet.getCellByPosition(1, YPos + 4).setValue(OutputLayer)
 
 &apos; Save Error dynamics   
-&apos;		YPos = 0     
-&apos;		oSheet.getCellByPosition(3, YPos).setString(&quot;ERROR&quot;)
-	
-&apos;        For i = 1 To UBound(ErrorArray, 2)
-&apos;			oSheet.getCellByPosition(3, i).setValue(ErrorArray(1, i))
-&apos;			oSheet.getCellByPosition(4, i).setValue(ErrorArray(2, i))
-&apos;			oSheet.getCellByPosition(5, i).setValue(ErrorArray(3, i))
-&apos;        Next i
+		YPos = 0     
+		oSheet.getCellByPosition(3, YPos).setString(&quot;ERROR&quot;)
+	    For i = 1 To UBound(ErrorArray, 2)
+			oSheet.getCellByPosition(3, i).setValue(ErrorArray(1, i))
+			oSheet.getCellByPosition(4, i).setValue(ErrorArray(2, i))
+			oSheet.getCellByPosition(5, i).setValue(ErrorArray(3, i))
+        Next i
         		
 	Else
 		MsgBox &quot;No network for saving&quot;
@@ -402,14 +399,20 @@ Sub btnSave_Clicked()
 End Sub
 
 Sub btnLoad_Clicked()
+    Dim LayersCount As Long
+    Dim WeightsCount As Long
     Dim StartCell As String
     Dim WeightPtr As Long
-    Dim LayersCount As Long
     Dim Inputs As Long
     Dim Hiddens As Long
     Dim Outputs As Long
     Dim oDoc As Object
     Dim oSheet As Object
+    Dim StructureString As String
+    Dim i As Long
+    Dim YPos As Long
+
+	On Error GoTo ErrorHandler
 
 	oSheet = ThisComponent.getCurrentController().getActiveSheet()
     i = 0
@@ -417,32 +420,78 @@ Sub btnLoad_Clicked()
       i = i + 1
     Wend
     LayersCount = i
-    
-    If LayersCount = 3 Then
-    Inputs = oSheet.getCellByPosition(1, 3).getValue()
-    Hiddens = oSheet.getCellByPosition(1, 4).getValue()
-    Outputs = oSheet.getCellByPosition(1, 5).getValue()    
-	If Inputs &lt;= 0 Then
-		MsgBox &quot;Invalid Input Value&quot;
-		Exit Sub
-	ElseIf Hiddens &lt;= 0 Then
-		MsgBox &quot;Invalid Hidden Value&quot;
-		Exit Sub
-	ElseIf Outputs &lt;= 0 Then	
-		MsgBox &quot;Invalid Output Value&quot;
-		Exit Sub
+
+    YPos = 2
+   	StructureString = &quot;&quot;
+	If LayersCount = 0 Then
+    	StructureString = &quot;&quot;
 	Else
-		oNeuralNet.createNetwork3(Inputs, Hiddens, Outputs)
-		oDialog.GetControl(&quot;tfNetworkStructure&quot;).setText(GetNetworkStructure())
-      For i = 0 To oNeuralNet.GetWeightsCount() - 1
-        oNeuralNet.SetWeight(i, oSheet.getCellByPosition(1, 8 + i).getValue())
-      Next i
-      CheckControlsEnabled()
-      OutputLayer = oNeuralNet.getLayersCount()
-      oDialog.GetControl(&quot;nfOutputLayer&quot;).setMax(OutputLayer)
-  	  oDialog.GetControl(&quot;nfOutputLayer&quot;).Value = OutputLayer
+    	For i = 0 To LayersCount - 2
+        	StructureString = StructureString &amp; oSheet.getCellByPosition(1, YPos + 1 + i).getValue() &amp; &quot;.&quot;
+	    Next i
+	   	StructureString = StructureString &amp; oSheet.getCellByPosition(1, YPos + 1 + i).getValue()
 	End If
-    End If
+
+	CreateResult = oNeuralNet.CreateNetwork(StructureString)
+
+	If CreateResult = 1 Then
+		oDialog.GetControl(&quot;lblStatus&quot;).setText(&quot;OK&quot;)
+		CheckControlsEnabled()
+		NetworkStructure = GetNetworkStructure()
+		oDialog.GetControl(&quot;tfNetworkStructure&quot;).setText(NetworkStructure)		
+		OutputLayer = oNeuralNet.getLayersCount()
+		oDialog.GetControl(&quot;nfOutputLayer&quot;).setMax(OutputLayer)
+
+&apos; Load network weights
+		WeightsCount = oNeuralNet.getWeightsCount()
+		YPos = YPos + LayersCount + 2
+        For i = 0 To WeightsCount - 1
+			oNeuralNet.setWeight(i, oSheet.getCellByPosition(1, YPos + 1 + i).getValue())
+        Next i
+
+&apos; Load train parameters
+		YPos = YPos + WeightsCount + 2
+		RandomSeed = oSheet.getCellByPosition(1, YPos + 1).getValue()
+		oDialog.GetControl(&quot;nfRandomSeed&quot;).setValue(RandomSeed)
+		TrainDataRange = oSheet.getCellByPosition(1, YPos + 2).getString()
+		oDialog.GetControl(&quot;fldTrainData&quot;).setText(TrainDataRange)
+
+		Select Case oSheet.getCellByPosition(1, YPos + 3).getString()
+		Case &quot;BProp&quot;: 
+			paramsBPROPLearningRate = oSheet.getCellByPosition(1, YPos + 4).getValue()
+			paramsBPROPMomentum = oSheet.getCellByPosition(1, YPos + 5).getValue()
+			YPos = YPos + 6
+		Case &quot;RProp&quot;: 
+			paramsRPROPIncreaseFactor = oSheet.getCellByPosition(1, YPos + 4).getValue()
+			paramsRPROPDecreaseFactor = oSheet.getCellByPosition(1, YPos + 5).getValue()
+			paramsRPROPDeltaMin = oSheet.getCellByPosition(1, YPos + 6).getValue()
+			paramsRPROPDeltaMax = oSheet.getCellByPosition(1, YPos + 7).getValue()
+			paramsRPROPDeltaInit = oSheet.getCellByPosition(1, YPos + 8).getValue()
+			YPos = YPos + 9
+		Case &quot;SCG&quot;: 
+			paramsSCGSigma = oSheet.getCellByPosition(1, YPos + 4).getValue()
+			paramsSCGLambda = oSheet.getCellByPosition(1, YPos + 5).getValue()
+			YPos = YPos + 6
+		End Select
+&apos;
+		TrainingEpoches = oSheet.getCellByPosition(1, YPos).getValue()
+		oDialog.GetControl(&quot;nfTrainingEpoches&quot;).setValue(TrainingEpoches)
+		TrainingTimes = oSheet.getCellByPosition(1, YPos + 1).getValue()
+		oDialog.GetControl(&quot;nfTrainingTimes&quot;).setValue(TrainingTimes)
+		CVDataRange = oSheet.getCellByPosition(1, YPos + 2).getString()
+		oDialog.GetControl(&quot;fldCVData&quot;).setText(CVDataRange)
+		TestDataRange = oSheet.getCellByPosition(1, YPos + 3).getString()
+		oDialog.GetControl(&quot;fldTestData&quot;).setText(TestDataRange)
+		OutputLayer = oSheet.getCellByPosition(1, YPos + 4).getValue()
+		oDialog.GetControl(&quot;nfOutputLayer&quot;).setValue(OutputLayer)
+		
+	Else
+		oDialog.GetControl(&quot;lblStatus&quot;).setText(&quot;Fail&quot;)
+	End If
+ 
+Exit Sub
+ErrorHandler:
+	MsgBox &quot;Error while loading...&quot;
 End Sub
 
 Sub LoadDataset(DatasetStr As String)
@@ -488,6 +537,7 @@ Dim Row, Col As Long
 Dim LayersCount As Long
 Dim firstLayer, lastLayer As Long
 Dim CurrentEpoch As Long
+Dim ProgressInc As Long
 
 On Error GoTo ErrorHandler
 
@@ -500,6 +550,8 @@ ProgressValue = 0
 ProgressInc = 100 / TrainingTimes
 oProgressBar = oDialog.getModel().getByName(&quot;pbTrain&quot;)
 oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, 0)
+
+oNeuralNet.initializeNetwork(oDialog.GetControl(&quot;nfRandomSeed&quot;).Value)
 
 Select Case oDialog.GetControl(&quot;cbAlg&quot;).getSelectedItemPos()
 Case 0: 
@@ -551,6 +603,7 @@ Case 2:
 	oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, ProgressValue)
 	Next i	
 End Select
+oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, 100)
 MsgBox &quot;Training complete. MSE=&quot; &amp; oNeuralNet.getError()
 oProgressBar.setPropertyValue(&quot;ProgressValue&quot;, 0)
 Exit Sub

@@ -24,11 +24,9 @@
     <registration/>
     <extension-description>
       <src xlink:href="desc/en.txt" lang="en" />
-      <src xlink:href="desc/ru.txt" lang="ru" />
     </extension-description>
     <display-name>
       <name lang="en">Neuronica: Neural Networks</name>
-      <name lang="ru">Neuronica: Нейронные сети</name>
     </display-name>
     <icon>
 	<default xlink:href="images/icon.png" />
