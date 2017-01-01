@@ -15,3 +15,13 @@ It realized the following high efficiency multilayer perceptron learning algorit
 4. Execute **make** command
 5. Start OpenOffice Calc and use "Neural" menu item
 
+## Use binary
+
+Win32:
+
+1. Download and install Visual C++ 2013 redistributable package https://www.microsoft.com/en-us/download/details.aspx?id=40784
+2. Download and install binary Add-Ons from http://extensions.openoffice.org/en/project/neuronica
+3. Documentation can be found in Doc directory
+
+Linux, Mac:
+Coming soon...
